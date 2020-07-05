@@ -47,47 +47,59 @@ app.get("/scrape", function (req, res) {
     // Load the html body from axios into cheerio
     var $ = cheerio.load(response.data);
     // For each element with a "title" class
-    $(".title").each(function (i, element) {
+    $("article").each(function (i, element) {
       var result = {}; //empty result object
 
       // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(this).children("a").text();
-      result.link = $(this).children("a").attr("href");
+      result.title = $(element)
+        .children(".item-info-wrap")
+        .children(".item-info")
+        .children(".title")
+        .text();
 
-      // For each element with a "teaser" class
-      $(".teaser").each(function (i, element) {
-        //Add the text and href of every link, and save them as properties of the result object
-        result.teaser = $(this).children("a").text();
+      result.link = $(element)
+        .children(".item-info-wrap")
+        .children(".item-info")
+        .children(".teaser")
+        .children("a")
+        .attr("href");
 
+      result.date = $(element)
+        .children(".item-info-wrap")
+        .children(".item-info")
+        .children(".teaser")
+        .children("a")
+        .children("time")
+        .attr("datetime");
 
-        // For each element with a "img.respArchListImg" class
-        $("img.respArchListImg").each(function (i, element) {
-          // Save the text and href of each link enclosed in the current element
-          result.imgage = $(this).attr("src");
+      result.teaser = $(element)
+        .children(".item-info-wrap")
+        .children(".item-info")
+        .children(".teaser")
+        .text();
 
+      result.image = $(element)
+        .children(".item-image")
+        .children(".imagewrap")
+        .children("a")
+        .children("img")
+        .attr("src");
 
-          $("span.date").each(function (i, element) {
-            // Save the text and href of each link enclosed in the current element
-            result.date = $(this).text();
-
-
-            db.Article.create(result)
-              .then(function (dbArticle) {
-                console.log(dbArticle)
-              })
-              .catch(function (err) {
-                console.log(err)
-              })
-          });
-        }
-        )
-      })
+      // Create a new Article using the `result` object built from scraping
+      db.Article.create(result)
+        .then(function (dbArticle) {
+          // View the added result in the console
+          console.log(dbArticle)
+        })
+        .catch(function (err) {
+          // If an error occurred, log it
+          console.log(err)
+        })
     });
     // Send a "Scrape Complete" message to the browser
     res.send("Scrape Complete");
-  })
+  });
 });
-
 
 
 // Listen on port 3000
