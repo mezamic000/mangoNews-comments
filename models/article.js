@@ -16,15 +16,11 @@ var ArticleSchema = new Schema({
     required: true
   },
 
-  date: {
-    type: String,
-    required: true
-  },
-
   teaser: {
     type: String,
     required: true
   },
+
   image: {
     type: String,
   },

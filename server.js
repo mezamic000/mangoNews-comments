@@ -23,6 +23,9 @@ app.use(logger("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+const bodyParser = require("body-parser")
+app.use(bodyParser.urlencoded({ extended: true }));
+
 // Make public a static folder
 app.use(express.static("public"));
 
@@ -57,14 +60,6 @@ app.get("/scrape", function (req, res) {
         .children(".teaser")
         .children("a")
         .attr("href");
-
-      result.date = $(element)
-        .children(".item-info-wrap")
-        .children(".item-info")
-        .children(".teaser")
-        .children("a")
-        .children("time")
-        .attr("datetime");
 
       result.teaser = $(element)
         .children(".item-info-wrap")
