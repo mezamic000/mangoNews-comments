@@ -140,6 +140,8 @@ app.post("/articles/:id", function (req, res) {
 });
 
 // Listen on port 3000
-app.listen(8080, function () {
+var PORT = process.env.PORT || 8080;
+
+app.listen(PORT, function () {
   console.log("App running on port 8080!");
 });
