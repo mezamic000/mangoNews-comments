@@ -2,7 +2,8 @@
 var express = require("express");
 var logger = require("morgan");
 var mongoose = require("mongoose");
-
+var exphbs = require('express-handlebars');
+var path = require("path");
 
 // Require axios and cheerio. This makes the scraping possible
 var axios = require("axios");
@@ -13,6 +14,10 @@ var db = require("./models");
 
 // Initialize Express
 var app = express();
+app.engine('handlebars', exphbs({ defaultLayout: "main" }), /*expressHandlebars({
+  handlebars: allowInsecurePrototypeAccess(Handlebars)
+})*/);
+app.set('view engine', 'handlebars');
 
 // Configure middleware
 
@@ -23,7 +28,7 @@ app.use(logger("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-const bodyParser = require("body-parser")
+var bodyParser = require("body-parser")
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Make public a static folder
@@ -33,9 +38,17 @@ app.use(express.static("public"));
 mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
 
 app.get("/", function (req, res) {
-  res.json(path.join(__dirname, "index.html"));
+  db.Article.find({ "saved": false }, function (err, articles) {
+    var articleObject = {
+      article: articles
+    };
+    if (err) {
+      console.log(err)
+    }
+    console.log(articleObject);
+    res.render("index", articleObject);
+  })
 });
-
 
 // Scrape data from one site and place it into the mongodb db
 app.get("/scrape", function (req, res) {
@@ -140,7 +153,7 @@ app.post("/articles/:id", function (req, res) {
     });
 });
 
-// Listen on port 3000
+// Listen on port 8080
 var PORT = process.env.PORT || 8080;
 
 app.listen(PORT, function () {

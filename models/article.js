@@ -25,6 +25,15 @@ var ArticleSchema = new Schema({
     type: String,
   },
 
+  note: {
+    type: Schema.Types.ObjectId,
+    ref: "comment"
+  },
+
+  saved: {
+    type: Boolean,
+    default: false
+  }
 });
 
 // This creates our model from the above schema, using mongoose's model method
