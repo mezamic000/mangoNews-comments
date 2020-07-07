@@ -36,6 +36,11 @@ var collections = ["scrapedData"];
 // Hook mongojs configuration to the db variable
 mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
 
+app.get("/", function(req, res) {
+  res.json(path.join(__dirname, "public/index.html"));
+});
+
+
 // Scrape data from one site and place it into the mongodb db
 app.get("/scrape", function (req, res) {
 
