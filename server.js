@@ -37,19 +37,6 @@ app.use(express.static("public"));
 // Hook mongojs configuration to the db variable
 mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
 
-app.get("/", function (req, res) {
-  db.Article.find({ "saved": false }, function (err, articles) {
-    var articleObject = {
-      article: articles
-    };
-    if (err) {
-      console.log(err)
-    }
-    console.log(articleObject);
-    res.render("index", articleObject);
-  })
-});
-
 // Scrape data from one site and place it into the mongodb db
 app.get("/scrape", function (req, res) {
 
@@ -62,26 +49,26 @@ app.get("/scrape", function (req, res) {
       var result = {}; //empty result object
 
       // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(element)
+      result.title = $(this)
         .children(".item-info-wrap")
         .children(".item-info")
         .children(".title")
         .text();
 
-      result.link = $(element)
+      result.link = $(this)
         .children(".item-info-wrap")
         .children(".item-info")
         .children(".teaser")
         .children("a")
         .attr("href");
 
-      result.teaser = $(element)
+      result.teaser = $(this)
         .children(".item-info-wrap")
         .children(".item-info")
         .children(".teaser")
         .text();
 
-      result.image = $(element)
+      result.image = $(this)
         .children(".item-image")
         .children(".imagewrap")
         .children("a")
@@ -104,6 +91,32 @@ app.get("/scrape", function (req, res) {
   });
 });
 
+app.get("/", function (req, res) {
+  db.Article.find({ "saved": false }, function (err, articles) {
+    var articleObject = {
+      article: articles
+    };
+    if (err) {
+      console.log(err)
+    }
+    console.log(articleObject);
+    res.render("index", articleObject);
+  }).lean();
+});
+
+app.get("/saved", function (req, res) {
+  db.Article.find({ "saved": true }, function (err, articles) {
+    var articleObject = {
+      article: articles
+    };
+    if (err) {
+      console.log(err)
+    }
+    console.log(articleObject)
+    res.render("articles", articleObject);
+  })
+});
+
 app.get("/articles", function (req, res) {
   // Grab every document in the Articles collection
   db.Article.find({})
@@ -114,7 +127,7 @@ app.get("/articles", function (req, res) {
     .catch(function (err) {
       // If an error occurred, send it to the client
       res.json(err);
-    });
+    }).lean()
 });
 
 // Route for grabbing a specific Article by id, populate it with it's note
@@ -152,6 +165,75 @@ app.post("/articles/:id", function (req, res) {
       res.json(err);
     });
 });
+
+// Find an article by id, updated saved boolean
+app.post("/articles/saved/:id", function (req, res) {
+  db.Article.findOneAndUpdate({ _id: req.params.id }, { saved: true })
+    .then(function (dbArticle) {
+      res.json(dbArticle);
+      console.log("article saved")
+    });
+});
+
+//Retrieve all saved articles
+app.get("/articles/saved", function (req, res) {
+  db.Article.find({ saved: true }).lean()
+    .then(function (dbArticle) {
+      res.json(dbArticle);
+    })
+    .catch(function (err) {
+      res.json(err);
+    })
+});
+
+
+//Route for deleting Article by id
+app.delete("/articles/delete/:id", function (req, res) {
+  db.Article.findOneAndDelete({ _id: req.params.id }).lean()
+    .then(function (dbArticle) {
+      console.log("Article Deleted")
+      res.json(dbArticle)
+    })
+    .catch(function (err) {
+      res.json(err);
+    });
+})
+
+//Route for clearing all scraped articles
+app.delete("/articles/delete", function (req, res) {
+  db.Article.deleteMany({}, function (res, err) {
+    if (err) {
+      console.log(err)
+    }
+    else {
+      res.send("All articles cleared")
+      console.log("All articles deleted")
+    }
+  }).lean()
+})
+
+//Route for getting all Comments
+app.get("/comments", function (req, res) {
+  db.Comment.find({}).lean()
+    .then(function (dbComment) {
+      res.json(dbComment);
+    })
+    .catch(function (err) {
+      res.json(err);
+    })
+});
+
+//Route for deleting comment by id
+app.delete("/comments/delete/:id", function (req, res) {
+  db.Comment.findOneAndDelete({ _id: req.params.id })
+    .then(function (dbComment) {
+      console.log("Comment Deleted")
+      res.json(dbComment)
+    })
+    .catch(function (err) {
+      res.json(err);
+    });
+})
 
 // Listen on port 8080
 var PORT = process.env.PORT || 8080;
