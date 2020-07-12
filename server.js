@@ -37,7 +37,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 // Hook mongojs configuration to the db variable
-mongoose.connect("mongodb://mezamic000:n3wHou5e@ds221155.mlab.com:21155/heroku_pmkzcfvv");
+// mongoose.connect("mongodb://mezamic000:n3wHou5e@ds221155.mlab.com:21155/heroku_pmkzcfvv");
+mongoose.connect(process.env.MONGODB_URI)
 // const db = mongoose.connection;
 var Article = require("./models/article.js");
 var Note = require("./models/note.js")
