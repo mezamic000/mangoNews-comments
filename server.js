@@ -35,7 +35,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 // Hook mongojs configuration to the db variable
-mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
+mongoose.connect(process.env.MONGODB_URI);
 
 // Scrape data from one site and place it into the mongodb db
 app.get("/scrape", function (req, res) {
