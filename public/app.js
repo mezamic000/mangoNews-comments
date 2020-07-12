@@ -1,18 +1,3 @@
-// // Grab the articles as a json
-// $.getJSON("/article", function (data) {
-//   // For each one
-//   for (var i = 0; i < data.length; i++) {
-//     // Display the apropos information on the page
-//     $("#articles")
-//       .append('<input type="button" id="comment" value="Comment" />')
-//       .append('<img src= "' + data[i].image + '">')
-//       .append("<h6 data-id='" + data[i]._id + "'>" + data[i].title + "</h6>")
-//       .append("<p>" + data[i].teaser + "<p/>")
-//   }
-// });
-// Grab the articles as a json
-
-
 $("#scrape").on("click", function () {
   $.ajax({
     method: "GET",
@@ -22,3 +7,27 @@ $("#scrape").on("click", function () {
     window.location = "/"
   })
 });
+
+$("#clear").on("click", function () {
+  $.ajax({
+    method: "DELETE",
+    url: "/articles/delete"
+  }).done(function () {
+    window.location = "/"
+  })
+})
+
+$("#save-comment").on("click", function () {
+  var thisId = $(this).attr("data-id");
+  var thisTitle = $(this).attr("title");
+  var commentor = $("#commentor").val()
+  var comment = $("#comment").val()
+  $.post("/articles/" + thisId, {
+    commentor: commentor,
+    comment: comment
+  },
+    function () {
+      window.location = "/comments"
+    })
+  console.log(comment)
+})

@@ -104,19 +104,6 @@ app.get("/", function (req, res) {
   }).lean();
 });
 
-app.get("/saved", function (req, res) {
-  db.Article.find({ "saved": true }, function (err, articles) {
-    var articleObject = {
-      article: articles
-    };
-    if (err) {
-      console.log(err)
-    }
-    console.log(articleObject)
-    res.render("articles", articleObject);
-  })
-});
-
 app.get("/articles", function (req, res) {
   // Grab every document in the Articles collection
   db.Article.find({})
@@ -127,7 +114,7 @@ app.get("/articles", function (req, res) {
     .catch(function (err) {
       // If an error occurred, send it to the client
       res.json(err);
-    }).lean()
+    })
 });
 
 // Route for grabbing a specific Article by id, populate it with it's note
@@ -166,27 +153,6 @@ app.post("/articles/:id", function (req, res) {
     });
 });
 
-// Find an article by id, updated saved boolean
-app.post("/articles/saved/:id", function (req, res) {
-  db.Article.findOneAndUpdate({ _id: req.params.id }, { saved: true })
-    .then(function (dbArticle) {
-      res.json(dbArticle);
-      console.log("article saved")
-    });
-});
-
-//Retrieve all saved articles
-app.get("/articles/saved", function (req, res) {
-  db.Article.find({ saved: true }).lean()
-    .then(function (dbArticle) {
-      res.json(dbArticle);
-    })
-    .catch(function (err) {
-      res.json(err);
-    })
-});
-
-
 //Route for deleting Article by id
 app.delete("/articles/delete/:id", function (req, res) {
   db.Article.findOneAndDelete({ _id: req.params.id }).lean()
@@ -209,14 +175,14 @@ app.delete("/articles/delete", function (req, res) {
       res.send("All articles cleared")
       console.log("All articles deleted")
     }
-  }).lean()
+  })
 })
 
 //Route for getting all Comments
 app.get("/comments", function (req, res) {
-  db.Comment.find({}).lean()
-    .then(function (dbComment) {
-      res.json(dbComment);
+  db.Note.find({})
+    .then(function (dbNote) {
+      res.json(dbNote);
     })
     .catch(function (err) {
       res.json(err);
@@ -225,10 +191,10 @@ app.get("/comments", function (req, res) {
 
 //Route for deleting comment by id
 app.delete("/comments/delete/:id", function (req, res) {
-  db.Comment.findOneAndDelete({ _id: req.params.id })
-    .then(function (dbComment) {
+  db.Note.findOneAndDelete({ _id: req.params.id })
+    .then(function (dbNote) {
       console.log("Comment Deleted")
-      res.json(dbComment)
+      res.json(dbNote)
     })
     .catch(function (err) {
       res.json(err);

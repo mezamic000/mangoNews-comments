@@ -15,11 +15,8 @@
     <span class="navbar-brand mx-auto" style="font-size: x-large; font-weight: 800;">Mango News and Comments</span>
   </nav>
   <nav class="navbar justify-content-center" style="font-weight:600; border: solid 
-#007bff 1px;">
+#007bff 4px;">
     <ul class="nav">
-      <li class="nav-item">
-        <a class=" nav-link active" href="articles.handlebars">Saved Articles</a>
-      </li>
       <li class="nav-item">
         <a class="nav-link" id="scrape" href="#">New Articles</a>
       </li>
@@ -30,7 +27,7 @@
   </nav>
   <div class="container">
     {{#each article}}
-    <div class="card" style="margin: 20px; border: solid 4px #007bff">
+    <div class="card" style="margin: 20px; border: solid 2px #007bff">
       <div class="row">
         <div class="col-md-4">
           <img src="{{this.image}}" class="card-img" alt="Article Image">
@@ -40,10 +37,47 @@
           <h5 class="card-title">{{this.title}}</h5>
           <p class="card-text">{{this.teaser}}</p>
           <a href="{{this.link}}" class="btn btn-primary">Read Full Article</a>
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong"
+            data-id={{this._id}}>
+            Comment(s)
+          </button>
         </div>
       </div>
     </div>
     {{/each}}
+    <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Add Comment</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label for="recipient-name" class="col-form-label">Name:</label>
+                <input type="text" class="form-control" id="commentor">
+              </div>
+              <div class="form-group">
+                <label for="message-text" class="col-form-label">Comment:</label>
+                <textarea class="form-control" id="comment"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" id="save-comment" class="btn btn-primary">Submit</button>
+          </div>
+          {{#each Note}}
+          <h4>{{commentor}}</h4>
+          <p>{{comment}}</p>
+          {{/each}}
+        </div>
+      </div>
+    </div>
 
   </div>
   <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
