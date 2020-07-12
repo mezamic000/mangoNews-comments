@@ -10,7 +10,7 @@ var axios = require("axios");
 var cheerio = require("cheerio");
 
 // Require all models
-var db = require("./models");
+// var db = require("./models");
 
 // Initialize Express
 var app = express();
@@ -36,6 +36,7 @@ app.use(express.static("public"));
 
 // Hook mongojs configuration to the db variable
 mongoose.connect("mongodb://mezamic000:n3wHou5e@ds221155.mlab.com:21155/heroku_pmkzcfvv");
+const db = mongoose.connection;
 
 // Scrape data from one site and place it into the mongodb db
 app.get("/scrape", function (req, res) {
