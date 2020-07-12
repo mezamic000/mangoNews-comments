@@ -10,7 +10,9 @@ var axios = require("axios");
 var cheerio = require("cheerio");
 
 // Require all models
-var models = require("./models");
+// var Article = require("./models/article.js");
+// var Note = require("./models/note.js")
+
 
 // Initialize Express
 var app = express();
@@ -36,7 +38,10 @@ app.use(express.static("public"));
 
 // Hook mongojs configuration to the db variable
 mongoose.connect("mongodb://mezamic000:n3wHou5e@ds221155.mlab.com:21155/heroku_pmkzcfvv");
-const db = mongoose.connection;
+// const db = mongoose.connection;
+var Article = require("./models/article.js");
+var Note = require("./models/note.js")
+
 
 // Scrape data from one site and place it into the mongodb db
 app.get("/scrape", function (req, res) {
@@ -77,7 +82,7 @@ app.get("/scrape", function (req, res) {
         .attr("src");
 
       // Create a new Article using the `result` object built from scraping
-      models.Article.create(result)
+      Article.create(result)
         .then(function (dbArticle) {
           // View the added result in the console
           console.log(dbArticle)
@@ -93,7 +98,7 @@ app.get("/scrape", function (req, res) {
 });
 
 app.get("/", function (req, res) {
-  models.Article.find({ "saved": false }, function (err, articles) {
+  Article.find({ "saved": false }, function (err, articles) {
     var articleObject = {
       article: articles
     };
@@ -107,7 +112,7 @@ app.get("/", function (req, res) {
 
 app.get("/articles", function (req, res) {
   // Grab every document in the Articles collection
-  models.Article.find({})
+  Article.find({})
     .then(function (dbArticle) {
       // If we were able to successfully find Articles, send them back to the client
       res.json(dbArticle);
@@ -121,7 +126,7 @@ app.get("/articles", function (req, res) {
 // Route for grabbing a specific Article by id, populate it with it's note
 app.get("/articles/:id", function (req, res) {
   // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
-  models.Article.findOne({ _id: req.params.id })
+  Article.findOne({ _id: req.params.id })
     // ..and populate all of the notes associated with it
     .populate("note")
     .then(function (dbArticle) {
@@ -137,12 +142,12 @@ app.get("/articles/:id", function (req, res) {
 // Route for saving/updating an Article's associated Note
 app.post("/articles/:id", function (req, res) {
   // Create a new note and pass the req.body to the entry
-  models.Note.create(req.body)
+  Note.create(req.body)
     .then(function (dbNote) {
       // If a Note was created successfully, find one Article with an `_id` equal to `req.params.id`. Update the Article to be associated with the new Note
       // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
       // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
-      return models.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+      return Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
     })
     .then(function (dbArticle) {
       // If we were able to successfully update an Article, send it back to the client
@@ -156,7 +161,7 @@ app.post("/articles/:id", function (req, res) {
 
 //Route for deleting Article by id
 app.delete("/articles/delete/:id", function (req, res) {
-  models.Article.findOneAndDelete({ _id: req.params.id }).lean()
+  Article.findOneAndDelete({ _id: req.params.id }).lean()
     .then(function (dbArticle) {
       console.log("Article Deleted")
       res.json(dbArticle)
@@ -168,7 +173,7 @@ app.delete("/articles/delete/:id", function (req, res) {
 
 //Route for clearing all scraped articles
 app.delete("/articles/delete", function (req, res) {
-  models.Article.deleteMany({}, function (res, err) {
+  Article.deleteMany({}, function (res, err) {
     if (err) {
       console.log(err)
     }
@@ -181,7 +186,7 @@ app.delete("/articles/delete", function (req, res) {
 
 //Route for getting all Comments
 app.get("/comments", function (req, res) {
-  models.Note.find({})
+  Note.find({})
     .then(function (dbNote) {
       res.json(dbNote);
     })
@@ -192,7 +197,7 @@ app.get("/comments", function (req, res) {
 
 //Route for deleting comment by id
 app.delete("/comments/delete/:id", function (req, res) {
-  models.Note.findOneAndDelete({ _id: req.params.id })
+  Note.findOneAndDelete({ _id: req.params.id })
     .then(function (dbNote) {
       console.log("Comment Deleted")
       res.json(dbNote)
